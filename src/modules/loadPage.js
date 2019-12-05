@@ -58,13 +58,18 @@ const loadPage = function(data, popstate) {
 
 		// handle classes
 		// modif on met un remove avant par securite
-		document.documentElement.classList.remove('is-changing').add('is-changing');
-		document.documentElement.classList.remove('is-leaving').add('is-leaving');
-		document.documentElement.classList.remove('is-animating').add('is-animating');
+		document.documentElement.classList.remove('is-changing');
+		document.documentElement.classList.add('is-changing');
+		document.documentElement.classList.remove('is-leaving');
+		document.documentElement.classList.add('is-leaving');
+		document.documentElement.classList.remove('is-animating');
+		document.documentElement.classList.add('is-animating');
 		if (popstate) {
-			document.documentElement.classList.remove('is-popstate').add('is-popstate');
+			document.documentElement.classList.remove('is-popstate');
+			document.documentElement.classList.add('is-popstate');
 		}
-		document.documentElement.classList.remove('to-' + classify(data.url)).add('to-' + classify(data.url));
+		document.documentElement.classList.remove('to-' + classify(data.url));
+		document.documentElement.classList.add('to-' + classify(data.url));
 
 		// animation promise stuff
 		animationPromises = this.getAnimationPromises('out');

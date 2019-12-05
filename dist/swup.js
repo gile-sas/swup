@@ -721,13 +721,18 @@ var loadPage = function loadPage(data, popstate) {
 
 		// handle classes
 		// modif on met un remove avant par securite
-		document.documentElement.classList.remove('is-changing').add('is-changing');
-		document.documentElement.classList.remove('is-leaving').add('is-leaving');
-		document.documentElement.classList.remove('is-animating').add('is-animating');
+		document.documentElement.classList.remove('is-changing');
+		document.documentElement.classList.add('is-changing');
+		document.documentElement.classList.remove('is-leaving');
+		document.documentElement.classList.add('is-leaving');
+		document.documentElement.classList.remove('is-animating');
+		document.documentElement.classList.add('is-animating');
 		if (popstate) {
-			document.documentElement.classList.remove('is-popstate').add('is-popstate');
+			document.documentElement.classList.remove('is-popstate');
+			document.documentElement.classList.add('is-popstate');
 		}
-		document.documentElement.classList.remove('to-' + (0, _helpers.classify)(data.url)).add('to-' + (0, _helpers.classify)(data.url));
+		document.documentElement.classList.remove('to-' + (0, _helpers.classify)(data.url));
+		document.documentElement.classList.add('to-' + (0, _helpers.classify)(data.url));
 
 		// animation promise stuff
 		animationPromises = _this.getAnimationPromises('out');
