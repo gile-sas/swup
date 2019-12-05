@@ -4,6 +4,7 @@ const loadPage = function(data, popstate) {
 	// create array for storing animation promises
 	let animationPromises = [],
 		xhrPromise;
+
 	const animateOut = () => {
 		console.log('SWUP: animate out')
 		this.triggerEvent('animationOutStart');
@@ -61,11 +62,25 @@ const loadPage = function(data, popstate) {
 		});
 		this.triggerEvent('pageRetrievedFromCache');
 	} else {
+		const that = this
 		if (!this.preloadPromise || this.preloadPromise.route != data.url) {
 			xhrPromise = new Promise((resolve, reject) => {
 
 				// modif max on ajoute ce custom loading
 				this.on('cancelLoading', () => {
+					document.documentElement.classList.remove('is-leaving');
+					document.documentElement.className.split(' ').forEach((classItem) => {
+						if (
+							new RegExp('^to-').test(classItem) ||
+							classItem === 'is-changing' ||
+							classItem === 'is-rendering' ||
+							classItem === 'is-popstate'
+						) {
+							document.documentElement.classList.remove(classItem);
+						}
+					});
+					document.documentElement.classList.remove('is-animating');
+					that.xhrPromise = null
 					resolve(false)
 				})
 
@@ -113,19 +128,6 @@ const loadPage = function(data, popstate) {
 				this.renderPage(this.cache.getPage(data.url), popstate);
 			} else {
 				console.log('SWUP: prevent renderPage')
-				document.documentElement.classList.remove('is-leaving');
-				document.documentElement.className.split(' ').forEach((classItem) => {
-					if (
-						new RegExp('^to-').test(classItem) ||
-						classItem === 'is-changing' ||
-						classItem === 'is-rendering' ||
-						classItem === 'is-popstate'
-					) {
-						document.documentElement.classList.remove(classItem);
-					}
-				});
-				document.documentElement.classList.remove('is-animating');
-				this.xhrPromise = null
 			}
 
 			// dans tous les cas

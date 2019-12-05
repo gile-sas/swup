@@ -668,6 +668,7 @@ var loadPage = function loadPage(data, popstate) {
 	// create array for storing animation promises
 	var animationPromises = [],
 	    xhrPromise = void 0;
+
 	var animateOut = function animateOut() {
 		console.log('SWUP: animate out');
 		_this.triggerEvent('animationOutStart');
@@ -725,11 +726,20 @@ var loadPage = function loadPage(data, popstate) {
 		});
 		this.triggerEvent('pageRetrievedFromCache');
 	} else {
+		var that = this;
 		if (!this.preloadPromise || this.preloadPromise.route != data.url) {
 			xhrPromise = new Promise(function (resolve, reject) {
 
 				// modif max on ajoute ce custom loading
 				_this.on('cancelLoading', function () {
+					document.documentElement.classList.remove('is-leaving');
+					document.documentElement.className.split(' ').forEach(function (classItem) {
+						if (new RegExp('^to-').test(classItem) || classItem === 'is-changing' || classItem === 'is-rendering' || classItem === 'is-popstate') {
+							document.documentElement.classList.remove(classItem);
+						}
+					});
+					document.documentElement.classList.remove('is-animating');
+					that.xhrPromise = null;
 					resolve(false);
 				});
 
@@ -776,14 +786,6 @@ var loadPage = function loadPage(data, popstate) {
 			_this.renderPage(_this.cache.getPage(data.url), popstate);
 		} else {
 			console.log('SWUP: prevent renderPage');
-			document.documentElement.classList.remove('is-leaving');
-			document.documentElement.className.split(' ').forEach(function (classItem) {
-				if (new RegExp('^to-').test(classItem) || classItem === 'is-changing' || classItem === 'is-rendering' || classItem === 'is-popstate') {
-					document.documentElement.classList.remove(classItem);
-				}
-			});
-			document.documentElement.classList.remove('is-animating');
-			_this.xhrPromise = null;
 		}
 
 		// dans tous les cas
