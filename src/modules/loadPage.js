@@ -68,7 +68,8 @@ const loadPage = function(data, popstate) {
 					resolve(false)
 				})
 
-				fetch({ ...data, headers: this.options.requestHeaders }, (response) => {
+				// modif max added swupObject
+				fetch({ ...data, headers: this.options.requestHeaders, swupObject: this }, (response) => {
 					if (response.status === 500) {
 						this.triggerEvent('serverError');
 						reject(data.url);

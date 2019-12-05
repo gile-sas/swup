@@ -14,7 +14,7 @@ const fetch = (setOptions, callback = false) => {
 	let request = new XMLHttpRequest();
 
 	// modif max on annule la requete
-	this.on('cancelLoading', () => {
+	setOptions.swupObject && setOptions.swupObject.on('cancelLoading', () => {
 		request.abort()
 	})
 

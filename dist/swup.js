@@ -732,7 +732,8 @@ var loadPage = function loadPage(data, popstate) {
 					resolve(false);
 				});
 
-				(0, _helpers.fetch)(_extends({}, data, { headers: _this.options.requestHeaders }), function (response) {
+				// modif max added swupObject
+				(0, _helpers.fetch)(_extends({}, data, { headers: _this.options.requestHeaders, swupObject: _this }), function (response) {
 					if (response.status === 500) {
 						_this.triggerEvent('serverError');
 						reject(data.url);
@@ -926,7 +927,7 @@ var fetch = function fetch(setOptions) {
 	var request = new XMLHttpRequest();
 
 	// modif max on annule la requete
-	undefined.on('cancelLoading', function () {
+	setOptions.swupObject && setOptions.swupObject.on('cancelLoading', function () {
 		request.abort();
 	});
 
