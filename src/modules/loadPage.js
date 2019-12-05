@@ -93,8 +93,10 @@ const loadPage = function(data, popstate) {
 
 	// start/skip animation
 	if (!popstate || this.options.animateHistoryBrowsing) {
-		animateOut();
-
+		// modif max
+		if(!this.animationPromises) {
+			animateOut();
+		}
 	} else {
 		this.triggerEvent('animationSkipped');
 	}
@@ -143,13 +145,20 @@ const loadPage = function(data, popstate) {
 		}
 	}
 
-	// modif max on ajoute ça pour le check externe
+	// modif max xhrPromise sert pour le check externe, animationPromises servent pour ne pas repeter l'animation
 	this.xhrPromise = xhrPromise
+	if(!this.animationPromises) {
+		this.animationPromises = animationPromises
+	}
+	const all_promises = this.animationPromises.concat([xhrPromise])
+	console.log(all_promises)
+	// juste pour se rassurer:
+	// https://stackoverflow.com/questions/32059531/what-happens-if-a-promise-completes-before-then-is-called
 
 	// when everything is ready, handle the outcome
-	console.log(animationPromises, xhrPromise)
-	Promise.all(animationPromises.concat([xhrPromise]))
+	Promise.all(all_promises)
 		.then((all_status) => {
+			console.log(all_status)
 			// modif max on check le cancelLoading
 			let ok = true
 			all_status && all_status.forEach(function(status) {
@@ -159,6 +168,8 @@ const loadPage = function(data, popstate) {
 			if(ok) {
 				// render page
 				console.log('SWUP: will renderPage')
+				this.xhrPromise = null
+				this.animationPromises = null
 				this.renderPage(this.cache.getPage(data.url), popstate);
 			} else {
 				console.log('SWUP: prevent renderPage')

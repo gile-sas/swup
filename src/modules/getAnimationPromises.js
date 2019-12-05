@@ -13,11 +13,11 @@ const getAnimationPromises = function() {
 					}
 			}
 			element.addEventListener(transitionEnd(), listener)
-			// modif max on ajoute ce custom loading
-			this.on('cancelLoading', () => {
-				element.removeEventListener(transitionEnd(), listener)
-				resolve(false)
-			})
+			// // modif max on ajoute ce custom loading
+			// this.on('cancelLoading', () => {
+			// 	element.removeEventListener(transitionEnd(), listener)
+			// 	resolve(false)
+			// })
 
 		});
 		promises.push(promise);

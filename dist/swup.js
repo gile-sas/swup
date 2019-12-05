@@ -756,7 +756,10 @@ var loadPage = function loadPage(data, popstate) {
 
 	// start/skip animation
 	if (!popstate || this.options.animateHistoryBrowsing) {
-		animateOut();
+		// modif max
+		if (!this.animationPromises) {
+			animateOut();
+		}
 	} else {
 		this.triggerEvent('animationSkipped');
 	}
@@ -805,12 +808,19 @@ var loadPage = function loadPage(data, popstate) {
 		}
 	}
 
-	// modif max on ajoute ça pour le check externe
+	// modif max xhrPromise sert pour le check externe, animationPromises servent pour ne pas repeter l'animation
 	this.xhrPromise = xhrPromise;
+	if (!this.animationPromises) {
+		this.animationPromises = animationPromises;
+	}
+	var all_promises = this.animationPromises.concat([xhrPromise]);
+	console.log(all_promises);
+	// juste pour se rassurer:
+	// https://stackoverflow.com/questions/32059531/what-happens-if-a-promise-completes-before-then-is-called
 
 	// when everything is ready, handle the outcome
-	console.log(animationPromises, xhrPromise);
-	Promise.all(animationPromises.concat([xhrPromise])).then(function (all_status) {
+	Promise.all(all_promises).then(function (all_status) {
+		console.log(all_status);
 		// modif max on check le cancelLoading
 		var ok = true;
 		all_status && all_status.forEach(function (status) {
@@ -820,6 +830,8 @@ var loadPage = function loadPage(data, popstate) {
 		if (ok) {
 			// render page
 			console.log('SWUP: will renderPage');
+			_this.xhrPromise = null;
+			_this.animationPromises = null;
 			_this.renderPage(_this.cache.getPage(data.url), popstate);
 		} else {
 			console.log('SWUP: prevent renderPage');
@@ -1352,8 +1364,6 @@ var _utils = __webpack_require__(1);
 var _helpers = __webpack_require__(0);
 
 var getAnimationPromises = function getAnimationPromises() {
-	var _this = this;
-
 	var promises = [];
 	var animatedElements = (0, _utils.queryAll)(this.options.animationSelector);
 	animatedElements.forEach(function (element) {
@@ -1365,11 +1375,11 @@ var getAnimationPromises = function getAnimationPromises() {
 				}
 			};
 			element.addEventListener((0, _helpers.transitionEnd)(), listener);
-			// modif max on ajoute ce custom loading
-			_this.on('cancelLoading', function () {
-				element.removeEventListener((0, _helpers.transitionEnd)(), listener);
-				resolve(false);
-			});
+			// // modif max on ajoute ce custom loading
+			// this.on('cancelLoading', () => {
+			// 	element.removeEventListener(transitionEnd(), listener)
+			// 	resolve(false)
+			// })
 		});
 		promises.push(promise);
 	});
