@@ -6,6 +6,12 @@ const getAnimationPromises = function() {
 	let animatedElements = queryAll(this.options.animationSelector);
 	animatedElements.forEach((element) => {
 		const promise = new Promise((resolve) => {
+
+			// modif max on ajoute ce custom loading
+			this.on('cancelLoading', () => {
+				resolve()
+			})
+
 			element.addEventListener(transitionEnd(), (event) => {
 				if (element == event.target) {
 					resolve();

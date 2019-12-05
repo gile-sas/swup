@@ -725,6 +725,12 @@ var loadPage = function loadPage(data, popstate) {
 	} else {
 		if (!this.preloadPromise || this.preloadPromise.route != data.url) {
 			xhrPromise = new Promise(function (resolve, reject) {
+
+				// modif max on ajoute ce custom loading
+				_this.on('cancelLoading', function () {
+					resolve();
+				});
+
 				(0, _helpers.fetch)(_extends({}, data, { headers: _this.options.requestHeaders }), function (response) {
 					if (response.status === 500) {
 						_this.triggerEvent('serverError');
@@ -1273,10 +1279,18 @@ var _utils = __webpack_require__(1);
 var _helpers = __webpack_require__(0);
 
 var getAnimationPromises = function getAnimationPromises() {
+	var _this = this;
+
 	var promises = [];
 	var animatedElements = (0, _utils.queryAll)(this.options.animationSelector);
 	animatedElements.forEach(function (element) {
 		var promise = new Promise(function (resolve) {
+
+			// modif max on ajoute ce custom loading
+			_this.on('cancelLoading', function () {
+				resolve();
+			});
+
 			element.addEventListener((0, _helpers.transitionEnd)(), function (event) {
 				if (element == event.target) {
 					resolve();
