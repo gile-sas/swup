@@ -63,7 +63,8 @@ export default class Swup {
 			serverError: [],
 			transitionStart: [],
 			transitionEnd: [],
-			willReplaceContent: []
+			willReplaceContent: [],
+			cancelLoading: [] // modif max custom event
 		};
 
 		// variable for id of element to scroll to after render
