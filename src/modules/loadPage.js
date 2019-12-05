@@ -107,7 +107,6 @@ const loadPage = function(data, popstate) {
 			if(ok) {
 				// render page
 				this.renderPage(this.cache.getPage(data.url), popstate);
-				this.preloadPromise = null;
 			} else {
 				// modif max we remove classes
 				// document.documentElement.classList.remove('is-animating');
@@ -122,6 +121,9 @@ const loadPage = function(data, popstate) {
 				// 	}
 				// });
 			}
+
+			// dans tous les cas
+			this.preloadPromise = null;
 		})
 		.catch((errorUrl) => {
 			// rewrite the skipPopStateHandling function to redirect manually when the history.go is processed
