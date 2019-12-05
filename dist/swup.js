@@ -772,12 +772,17 @@ var loadPage = function loadPage(data, popstate) {
 			_this.preloadPromise = null;
 		} else {
 			// modif max we remove classes
-			document.documentElement.classList.remove('is-animating');
-			document.documentElement.className.split(' ').forEach(function (classItem) {
-				if (new RegExp('^to-').test(classItem) || classItem === 'is-changing' || classItem === 'is-rendering' || classItem === 'is-popstate') {
-					document.documentElement.classList.remove(classItem);
-				}
-			});
+			// document.documentElement.classList.remove('is-animating');
+			// document.documentElement.className.split(' ').forEach((classItem) => {
+			// 	if (
+			// 		new RegExp('^to-').test(classItem) ||
+			// 		classItem === 'is-changing' ||
+			// 		classItem === 'is-rendering' ||
+			// 		classItem === 'is-popstate'
+			// 	) {
+			// 		document.documentElement.classList.remove(classItem);
+			// 	}
+			// });
 		}
 	}).catch(function (errorUrl) {
 		// rewrite the skipPopStateHandling function to redirect manually when the history.go is processed
@@ -919,6 +924,11 @@ var fetch = function fetch(setOptions) {
 	var options = _extends({}, defaults, setOptions);
 
 	var request = new XMLHttpRequest();
+
+	// modif max on annule la requete
+	undefined.on('cancelLoading', function () {
+		request.abort();
+	});
 
 	request.onreadystatechange = function () {
 		if (request.readyState === 4) {

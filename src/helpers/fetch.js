@@ -13,6 +13,11 @@ const fetch = (setOptions, callback = false) => {
 
 	let request = new XMLHttpRequest();
 
+	// modif max on annule la requete
+	this.on('cancelLoading', () => {
+		request.abort()
+	})
+
 	request.onreadystatechange = function() {
 		if (request.readyState === 4) {
 			if (request.status !== 500) {
