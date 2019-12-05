@@ -769,21 +769,11 @@ var loadPage = function loadPage(data, popstate) {
 
 		if (ok) {
 			// render page
+			console.log('SWUP: will renderPage');
 			_this.renderPage(_this.cache.getPage(data.url), popstate);
-		} else {}
-		// modif max we remove classes
-		// document.documentElement.classList.remove('is-animating');
-		// document.documentElement.className.split(' ').forEach((classItem) => {
-		// 	if (
-		// 		new RegExp('^to-').test(classItem) ||
-		// 		classItem === 'is-changing' ||
-		// 		classItem === 'is-rendering' ||
-		// 		classItem === 'is-popstate'
-		// 	) {
-		// 		document.documentElement.classList.remove(classItem);
-		// 	}
-		// });
-
+		} else {
+			console.log('SWUP: prevent renderPage');
+		}
 
 		// dans tous les cas
 		_this.preloadPromise = null;

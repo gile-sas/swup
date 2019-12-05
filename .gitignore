@@ -16,3 +16,4 @@ wiki-wishlist
 /plugins
 .nyc_output
 coverage
+publish.sh
