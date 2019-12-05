@@ -759,6 +759,8 @@ var loadPage = function loadPage(data, popstate) {
 			xhrPromise = this.preloadPromise;
 		}
 	}
+	// modif max on ajoute ça pour le check externe
+	this.xhrPromise = xhrPromise;
 
 	// when everything is ready, handle the outcome
 	Promise.all(animationPromises.concat([xhrPromise])).then(function (all_status) {
@@ -781,6 +783,7 @@ var loadPage = function loadPage(data, popstate) {
 				}
 			});
 			document.documentElement.classList.remove('is-animating');
+			_this.xhrPromise = null;
 		}
 
 		// dans tous les cas
