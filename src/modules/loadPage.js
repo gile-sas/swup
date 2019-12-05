@@ -5,6 +5,53 @@ const loadPage = function(data, popstate) {
 	let animationPromises = [],
 		xhrPromise;
 
+	// modif
+	const customAnimateIn = () => {
+
+		// on supprime la transition avec classe custom
+		this.options.containers.forEach(id => {
+			const el = document.documentElement.querySelector(id)
+			el && el.classList.add('no-transition')
+		})
+		// on supprime les classes
+		document.documentElement.classList.remove('is-leaving');
+		document.documentElement.className.split(' ').forEach((classItem) => {
+			if (
+				new RegExp('^to-').test(classItem) ||
+				classItem === 'is-changing' ||
+				classItem === 'is-rendering' ||
+				classItem === 'is-popstate'
+			) {
+				document.documentElement.classList.remove(classItem);
+			}
+		});
+		document.documentElement.classList.remove('is-animating');
+
+		// on remet les transitions
+		this.options.containers.forEach(id => {
+			const el = document.documentElement.querySelector(id)
+			el && el.classList.remove('no-transition')
+		})
+
+	}
+
+	// modif max
+	this.on('cancelLoading', () => {
+		console.log('SWUP: customAnimateIn')
+		customAnimateIn()
+	})
+
+	this.triggerEvent('transitionStart', popstate);
+
+	// set transition object
+	if (data.customTransition != null) {
+		this.updateTransition(window.location.pathname, data.url, data.customTransition);
+		document.documentElement.classList.add(`to-${classify(data.customTransition)}`);
+	} else {
+		this.updateTransition(window.location.pathname, data.url);
+	}
+
+
 	const animateOut = () => {
 		console.log('SWUP: animate out')
 		this.triggerEvent('animationOutStart');
@@ -38,53 +85,10 @@ const loadPage = function(data, popstate) {
 		}
 	};
 
-	// modif
-	const customAnimateIn = () => {
-
-		// on supprime la transition avec classe custom
-		this.options.containers.forEach(id => {
-			const el = document.documentElement.querySelector(id)
-			el && el.classList.add('no-transition')
-		})
-		// on supprime les classes
-		document.documentElement.classList.remove('is-leaving');
-		document.documentElement.className.split(' ').forEach((classItem) => {
-			if (
-				new RegExp('^to-').test(classItem) ||
-				classItem === 'is-changing' ||
-				classItem === 'is-rendering' ||
-				classItem === 'is-popstate'
-			) {
-				document.documentElement.classList.remove(classItem);
-			}
-		});
-		document.documentElement.classList.remove('is-animating');
-
-		// on remet les transitions
-		this.options.containers.forEach(id => {
-			const el = document.documentElement.querySelector(id)
-			el && el.classList.remove('no-transition')
-		})
-
-	}
-
-	this.triggerEvent('transitionStart', popstate);
-
-	// set transition object
-	if (data.customTransition != null) {
-		this.updateTransition(window.location.pathname, data.url, data.customTransition);
-		document.documentElement.classList.add(`to-${classify(data.customTransition)}`);
-	} else {
-		this.updateTransition(window.location.pathname, data.url);
-	}
-
 	// start/skip animation
 	if (!popstate || this.options.animateHistoryBrowsing) {
 		animateOut();
-		// modif max
-		this.on('cancelLoading', () => {
-			customAnimateIn()
-		})
+
 	} else {
 		this.triggerEvent('animationSkipped');
 	}
@@ -136,6 +140,7 @@ const loadPage = function(data, popstate) {
 	this.xhrPromise = xhrPromise
 
 	// when everything is ready, handle the outcome
+	console.log(animationPromises, xhrPromise)
 	Promise.all(animationPromises.concat([xhrPromise]))
 		.then((all_status) => {
 			// modif max on check le cancelLoading

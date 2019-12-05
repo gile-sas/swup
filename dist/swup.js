@@ -669,6 +669,46 @@ var loadPage = function loadPage(data, popstate) {
 	var animationPromises = [],
 	    xhrPromise = void 0;
 
+	// modif
+	var customAnimateIn = function customAnimateIn() {
+
+		// on supprime la transition avec classe custom
+		_this.options.containers.forEach(function (id) {
+			var el = document.documentElement.querySelector(id);
+			el && el.classList.add('no-transition');
+		});
+		// on supprime les classes
+		document.documentElement.classList.remove('is-leaving');
+		document.documentElement.className.split(' ').forEach(function (classItem) {
+			if (new RegExp('^to-').test(classItem) || classItem === 'is-changing' || classItem === 'is-rendering' || classItem === 'is-popstate') {
+				document.documentElement.classList.remove(classItem);
+			}
+		});
+		document.documentElement.classList.remove('is-animating');
+
+		// on remet les transitions
+		_this.options.containers.forEach(function (id) {
+			var el = document.documentElement.querySelector(id);
+			el && el.classList.remove('no-transition');
+		});
+	};
+
+	// modif max
+	this.on('cancelLoading', function () {
+		console.log('SWUP: customAnimateIn');
+		customAnimateIn();
+	});
+
+	this.triggerEvent('transitionStart', popstate);
+
+	// set transition object
+	if (data.customTransition != null) {
+		this.updateTransition(window.location.pathname, data.url, data.customTransition);
+		document.documentElement.classList.add('to-' + (0, _helpers.classify)(data.customTransition));
+	} else {
+		this.updateTransition(window.location.pathname, data.url);
+	}
+
 	var animateOut = function animateOut() {
 		console.log('SWUP: animate out');
 		_this.triggerEvent('animationOutStart');
@@ -702,47 +742,9 @@ var loadPage = function loadPage(data, popstate) {
 		}
 	};
 
-	// modif
-	var customAnimateIn = function customAnimateIn() {
-
-		// on supprime la transition avec classe custom
-		_this.options.containers.forEach(function (id) {
-			var el = document.documentElement.querySelector(id);
-			el && el.classList.add('no-transition');
-		});
-		// on supprime les classes
-		document.documentElement.classList.remove('is-leaving');
-		document.documentElement.className.split(' ').forEach(function (classItem) {
-			if (new RegExp('^to-').test(classItem) || classItem === 'is-changing' || classItem === 'is-rendering' || classItem === 'is-popstate') {
-				document.documentElement.classList.remove(classItem);
-			}
-		});
-		document.documentElement.classList.remove('is-animating');
-
-		// on remet les transitions
-		_this.options.containers.forEach(function (id) {
-			var el = document.documentElement.querySelector(id);
-			el && el.classList.remove('no-transition');
-		});
-	};
-
-	this.triggerEvent('transitionStart', popstate);
-
-	// set transition object
-	if (data.customTransition != null) {
-		this.updateTransition(window.location.pathname, data.url, data.customTransition);
-		document.documentElement.classList.add('to-' + (0, _helpers.classify)(data.customTransition));
-	} else {
-		this.updateTransition(window.location.pathname, data.url);
-	}
-
 	// start/skip animation
 	if (!popstate || this.options.animateHistoryBrowsing) {
 		animateOut();
-		// modif max
-		this.on('cancelLoading', function () {
-			customAnimateIn();
-		});
 	} else {
 		this.triggerEvent('animationSkipped');
 	}
@@ -794,6 +796,7 @@ var loadPage = function loadPage(data, popstate) {
 	this.xhrPromise = xhrPromise;
 
 	// when everything is ready, handle the outcome
+	console.log(animationPromises, xhrPromise);
 	Promise.all(animationPromises.concat([xhrPromise])).then(function (all_status) {
 		// modif max on check le cancelLoading
 		var ok = true;
