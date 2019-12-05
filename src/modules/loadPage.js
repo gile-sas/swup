@@ -109,6 +109,7 @@ const loadPage = function(data, popstate) {
 				console.log('SWUP: will renderPage')
 				this.renderPage(this.cache.getPage(data.url), popstate);
 			} else {
+				animateOut();
 				console.log('SWUP: prevent renderPage')
 			}
 
