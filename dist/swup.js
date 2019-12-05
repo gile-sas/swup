@@ -707,8 +707,11 @@ var loadPage = function loadPage(data, popstate) {
 
 		// on supprime la transition
 		var transitionClasses = [];
-		_this.options.containers.forEach(function (el) {
-			el.className.split(' ').forEach(function (classItem) {
+		_this.options.containers.forEach(function (id) {
+			var el = document.getElementById(id);
+			el && el.className.split(' ').forEach(function (classItem) {
+				// @todo find a way to use this.options.animationSelector instead of transition- which is the default selector
+				// Changing animationSelector option would break everything
 				if (new RegExp('^transition-').test(classItem)) {
 					transitionClasses.push(classItem);
 					el.classList.remove(classItem);
@@ -725,8 +728,9 @@ var loadPage = function loadPage(data, popstate) {
 		document.documentElement.classList.remove('is-animating');
 
 		// on remet les transitions
-		_this.options.containers.forEach(function (el) {
-			transitionClasses.forEach(function (classItem) {
+		_this.options.containers.forEach(function (id) {
+			var el = document.getElementById(id);
+			el && transitionClasses.forEach(function (classItem) {
 				el.classList.add(classItem);
 			});
 		});
