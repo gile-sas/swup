@@ -65,7 +65,7 @@ const loadPage = function(data, popstate) {
 
 				// modif max on ajoute ce custom loading
 				this.on('cancelLoading', () => {
-					resolve()
+					resolve(false)
 				})
 
 				fetch({ ...data, headers: this.options.requestHeaders }, (response) => {
@@ -96,10 +96,31 @@ const loadPage = function(data, popstate) {
 
 	// when everything is ready, handle the outcome
 	Promise.all(animationPromises.concat([xhrPromise]))
-		.then(() => {
-			// render page
-			this.renderPage(this.cache.getPage(data.url), popstate);
-			this.preloadPromise = null;
+		.then((all_status) => {
+			// modif max on check le cancelLoading
+			let ok = true
+			all_status && all_status.forEach(function(status) {
+				if(status === false) ok = false;
+			})
+
+			if(ok) {
+				// render page
+				this.renderPage(this.cache.getPage(data.url), popstate);
+				this.preloadPromise = null;
+			} else {
+				// modif max we remove classes
+				document.documentElement.classList.remove('is-animating');
+				document.documentElement.className.split(' ').forEach((classItem) => {
+					if (
+						new RegExp('^to-').test(classItem) ||
+						classItem === 'is-changing' ||
+						classItem === 'is-rendering' ||
+						classItem === 'is-popstate'
+					) {
+						document.documentElement.classList.remove(classItem);
+					}
+				});
+			}
 		})
 		.catch((errorUrl) => {
 			// rewrite the skipPopStateHandling function to redirect manually when the history.go is processed

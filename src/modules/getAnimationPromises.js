@@ -9,7 +9,7 @@ const getAnimationPromises = function() {
 
 			// modif max on ajoute ce custom loading
 			this.on('cancelLoading', () => {
-				resolve()
+				resolve(false)
 			})
 
 			element.addEventListener(transitionEnd(), (event) => {
