@@ -13,7 +13,6 @@ wiki-wishlist
 *.sublime-workspace
 .editorconfig
 .idea
-lib
 /plugins
 .nyc_output
 coverage
