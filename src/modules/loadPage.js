@@ -40,6 +40,18 @@ const loadPage = function(data, popstate) {
 
 	// modif
 	const customAnimateIn = () => {
+
+		// on supprime la transition
+		const transitionClasses = []
+		this.options.containers.forEach(el => {
+			el.className.split(' ').forEach((classItem) => {
+				if(new RegExp('^transition-').test(classItem)) {
+					transitionClasses.push(classItem)
+					el.classList.remove(classItem)
+				}
+			})
+		})
+		// on supprime les classes
 		document.documentElement.classList.remove('is-leaving');
 		document.documentElement.className.split(' ').forEach((classItem) => {
 			if (
@@ -52,6 +64,14 @@ const loadPage = function(data, popstate) {
 			}
 		});
 		document.documentElement.classList.remove('is-animating');
+
+		// on remet les transitions
+		this.options.containers.forEach(el => {
+			transitionClasses.forEach(classItem => {
+				el.classList.add(classItem)
+			})
+		})
+
 	}
 
 	this.triggerEvent('transitionStart', popstate);
