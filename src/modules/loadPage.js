@@ -17,29 +17,33 @@ const loadPage = function(data, popstate) {
 
 
 	const animateOut = () => {
-		// console.log('SWUP: animate out')
-		this.triggerEvent('animationOutStart');
 
-		// handle classes
-		// modif on met un remove avant par securite
-		document.documentElement.classList.remove('is-changing');
-		document.documentElement.classList.add('is-changing');
-		document.documentElement.classList.remove('is-leaving');
-		document.documentElement.classList.add('is-leaving');
-		document.documentElement.classList.remove('is-animating');
-		document.documentElement.classList.add('is-animating');
-		if (popstate) {
-			document.documentElement.classList.remove('is-popstate');
-			document.documentElement.classList.add('is-popstate');
+		// modif max
+		if(!this.animationPromises) {
+			// console.log('SWUP: animate out')
+			this.triggerEvent('animationOutStart');
+
+			// handle classes
+			// modif on met un remove avant par securite
+			document.documentElement.classList.remove('is-changing');
+			document.documentElement.classList.add('is-changing');
+			document.documentElement.classList.remove('is-leaving');
+			document.documentElement.classList.add('is-leaving');
+			document.documentElement.classList.remove('is-animating');
+			document.documentElement.classList.add('is-animating');
+			if (popstate) {
+				document.documentElement.classList.remove('is-popstate');
+				document.documentElement.classList.add('is-popstate');
+			}
+			document.documentElement.classList.remove('to-' + classify(data.url));
+			document.documentElement.classList.add('to-' + classify(data.url));
+
+			// animation promise stuff
+			animationPromises = this.getAnimationPromises('out');
+			Promise.all(animationPromises).then(() => {
+				this.triggerEvent('animationOutDone');
+			});
 		}
-		document.documentElement.classList.remove('to-' + classify(data.url));
-		document.documentElement.classList.add('to-' + classify(data.url));
-
-		// animation promise stuff
-		animationPromises = this.getAnimationPromises('out');
-		Promise.all(animationPromises).then(() => {
-			this.triggerEvent('animationOutDone');
-		});
 
 		// create history record if this is not a popstate call
 		if (!popstate) {
@@ -57,10 +61,7 @@ const loadPage = function(data, popstate) {
 
 	// start/skip animation
 	if (!popstate || this.options.animateHistoryBrowsing) {
-		// modif max
-		if(!this.animationPromises) {
-			animateOut();
-		}
+		animateOut();
 	} else {
 		this.triggerEvent('animationSkipped');
 	}
