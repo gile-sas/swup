@@ -705,18 +705,10 @@ var loadPage = function loadPage(data, popstate) {
 	// modif
 	var customAnimateIn = function customAnimateIn() {
 
-		// on supprime la transition
-		var transitionClasses = [];
+		// on supprime la transition avec classe custom
 		_this.options.containers.forEach(function (id) {
 			var el = document.documentElement.querySelector(id);
-			el && el.className.split(' ').forEach(function (classItem) {
-				// @todo find a way to use this.options.animationSelector instead of transition- which is the default selector
-				// Changing animationSelector option would break everything
-				if (new RegExp('^transition-').test(classItem)) {
-					transitionClasses.push(classItem);
-					el.classList.remove(classItem);
-				}
-			});
+			el && el.classList.add('no-transition');
 		});
 		// on supprime les classes
 		document.documentElement.classList.remove('is-leaving');
@@ -730,9 +722,7 @@ var loadPage = function loadPage(data, popstate) {
 		// on remet les transitions
 		_this.options.containers.forEach(function (id) {
 			var el = document.documentElement.querySelector(id);
-			el && transitionClasses.forEach(function (classItem) {
-				el.classList.add(classItem);
-			});
+			el && el.classList.remove('no-transition');
 		});
 	};
 
