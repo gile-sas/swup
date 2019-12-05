@@ -38,6 +38,22 @@ const loadPage = function(data, popstate) {
 		}
 	};
 
+	// modif
+	const customAnimateIn = () => {
+		document.documentElement.classList.remove('is-leaving');
+		document.documentElement.className.split(' ').forEach((classItem) => {
+			if (
+				new RegExp('^to-').test(classItem) ||
+				classItem === 'is-changing' ||
+				classItem === 'is-rendering' ||
+				classItem === 'is-popstate'
+			) {
+				document.documentElement.classList.remove(classItem);
+			}
+		});
+		document.documentElement.classList.remove('is-animating');
+	}
+
 	this.triggerEvent('transitionStart', popstate);
 
 	// set transition object
@@ -51,6 +67,10 @@ const loadPage = function(data, popstate) {
 	// start/skip animation
 	if (!popstate || this.options.animateHistoryBrowsing) {
 		animateOut();
+		// modif max
+		this.on('cancelLoading', () => {
+			customAnimateIn()
+		})
 	} else {
 		this.triggerEvent('animationSkipped');
 	}
@@ -68,18 +88,6 @@ const loadPage = function(data, popstate) {
 
 				// modif max on ajoute ce custom loading
 				this.on('cancelLoading', () => {
-					document.documentElement.classList.remove('is-leaving');
-					document.documentElement.className.split(' ').forEach((classItem) => {
-						if (
-							new RegExp('^to-').test(classItem) ||
-							classItem === 'is-changing' ||
-							classItem === 'is-rendering' ||
-							classItem === 'is-popstate'
-						) {
-							document.documentElement.classList.remove(classItem);
-						}
-					});
-					document.documentElement.classList.remove('is-animating');
 					that.xhrPromise = null
 					resolve(false)
 				})
