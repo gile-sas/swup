@@ -669,42 +669,6 @@ var loadPage = function loadPage(data, popstate) {
 	var animationPromises = [],
 	    xhrPromise = void 0;
 
-	// // modif
-	// const customAnimateIn = () => {
-	//
-	// 	// on supprime la transition avec classe custom
-	// 	this.options.containers.forEach(id => {
-	// 		const el = document.documentElement.querySelector(id)
-	// 		el && el.classList.add('no-transition')
-	// 	})
-	// 	// on supprime les classes
-	// 	document.documentElement.classList.remove('is-leaving');
-	// 	document.documentElement.className.split(' ').forEach((classItem) => {
-	// 		if (
-	// 			new RegExp('^to-').test(classItem) ||
-	// 			classItem === 'is-changing' ||
-	// 			classItem === 'is-rendering' ||
-	// 			classItem === 'is-popstate'
-	// 		) {
-	// 			document.documentElement.classList.remove(classItem);
-	// 		}
-	// 	});
-	// 	document.documentElement.classList.remove('is-animating');
-	//
-	// 	// on remet les transitions
-	// 	this.options.containers.forEach(id => {
-	// 		const el = document.documentElement.querySelector(id)
-	// 		el && el.classList.remove('no-transition')
-	// 	})
-	//
-	// }
-	//
-	// // modif max
-	// this.on('cancelLoading', () => {
-	// 	console.log('SWUP: customAnimateIn')
-	// 	customAnimateIn()
-	// })
-
 	this.triggerEvent('transitionStart', popstate);
 
 	// set transition object
@@ -716,7 +680,7 @@ var loadPage = function loadPage(data, popstate) {
 	}
 
 	var animateOut = function animateOut() {
-		console.log('SWUP: animate out');
+		// console.log('SWUP: animate out')
 		_this.triggerEvent('animationOutStart');
 
 		// handle classes
@@ -814,13 +778,11 @@ var loadPage = function loadPage(data, popstate) {
 		this.animationPromises = animationPromises;
 	}
 	var all_promises = this.animationPromises.concat([xhrPromise]);
-	console.log(all_promises);
 	// juste pour se rassurer:
 	// https://stackoverflow.com/questions/32059531/what-happens-if-a-promise-completes-before-then-is-called
 
 	// when everything is ready, handle the outcome
 	Promise.all(all_promises).then(function (all_status) {
-		console.log(all_status);
 		// modif max on check le cancelLoading
 		var ok = true;
 		all_status && all_status.forEach(function (status) {
@@ -829,13 +791,13 @@ var loadPage = function loadPage(data, popstate) {
 
 		if (ok) {
 			// render page
-			console.log('SWUP: will renderPage');
+			// console.log('SWUP: will renderPage')
 			_this.xhrPromise = null;
 			_this.animationPromises = null;
 			_this.renderPage(_this.cache.getPage(data.url), popstate);
-		} else {
-			console.log('SWUP: prevent renderPage');
-		}
+		} else {}
+		// console.log('SWUP: prevent renderPage')
+
 
 		// dans tous les cas
 		_this.preloadPromise = null;
@@ -1368,18 +1330,11 @@ var getAnimationPromises = function getAnimationPromises() {
 	var animatedElements = (0, _utils.queryAll)(this.options.animationSelector);
 	animatedElements.forEach(function (element) {
 		var promise = new Promise(function (resolve) {
-
-			var listener = function listener(event) {
+			element.addEventListener((0, _helpers.transitionEnd)(), function (event) {
 				if (element == event.target) {
 					resolve();
 				}
-			};
-			element.addEventListener((0, _helpers.transitionEnd)(), listener);
-			// // modif max on ajoute ce custom loading
-			// this.on('cancelLoading', () => {
-			// 	element.removeEventListener(transitionEnd(), listener)
-			// 	resolve(false)
-			// })
+			});
 		});
 		promises.push(promise);
 	});

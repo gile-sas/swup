@@ -5,42 +5,6 @@ const loadPage = function(data, popstate) {
 	let animationPromises = [],
 		xhrPromise;
 
-	// // modif
-	// const customAnimateIn = () => {
-	//
-	// 	// on supprime la transition avec classe custom
-	// 	this.options.containers.forEach(id => {
-	// 		const el = document.documentElement.querySelector(id)
-	// 		el && el.classList.add('no-transition')
-	// 	})
-	// 	// on supprime les classes
-	// 	document.documentElement.classList.remove('is-leaving');
-	// 	document.documentElement.className.split(' ').forEach((classItem) => {
-	// 		if (
-	// 			new RegExp('^to-').test(classItem) ||
-	// 			classItem === 'is-changing' ||
-	// 			classItem === 'is-rendering' ||
-	// 			classItem === 'is-popstate'
-	// 		) {
-	// 			document.documentElement.classList.remove(classItem);
-	// 		}
-	// 	});
-	// 	document.documentElement.classList.remove('is-animating');
-	//
-	// 	// on remet les transitions
-	// 	this.options.containers.forEach(id => {
-	// 		const el = document.documentElement.querySelector(id)
-	// 		el && el.classList.remove('no-transition')
-	// 	})
-	//
-	// }
-	//
-	// // modif max
-	// this.on('cancelLoading', () => {
-	// 	console.log('SWUP: customAnimateIn')
-	// 	customAnimateIn()
-	// })
-
 	this.triggerEvent('transitionStart', popstate);
 
 	// set transition object
@@ -53,7 +17,7 @@ const loadPage = function(data, popstate) {
 
 
 	const animateOut = () => {
-		console.log('SWUP: animate out')
+		// console.log('SWUP: animate out')
 		this.triggerEvent('animationOutStart');
 
 		// handle classes
@@ -151,14 +115,12 @@ const loadPage = function(data, popstate) {
 		this.animationPromises = animationPromises
 	}
 	const all_promises = this.animationPromises.concat([xhrPromise])
-	console.log(all_promises)
 	// juste pour se rassurer:
 	// https://stackoverflow.com/questions/32059531/what-happens-if-a-promise-completes-before-then-is-called
 
 	// when everything is ready, handle the outcome
 	Promise.all(all_promises)
 		.then((all_status) => {
-			console.log(all_status)
 			// modif max on check le cancelLoading
 			let ok = true
 			all_status && all_status.forEach(function(status) {
@@ -167,12 +129,12 @@ const loadPage = function(data, popstate) {
 
 			if(ok) {
 				// render page
-				console.log('SWUP: will renderPage')
+				// console.log('SWUP: will renderPage')
 				this.xhrPromise = null
 				this.animationPromises = null
 				this.renderPage(this.cache.getPage(data.url), popstate);
 			} else {
-				console.log('SWUP: prevent renderPage')
+				// console.log('SWUP: prevent renderPage')
 			}
 
 			// dans tous les cas
