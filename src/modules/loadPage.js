@@ -44,7 +44,7 @@ const loadPage = function(data, popstate) {
 		// on supprime la transition
 		const transitionClasses = []
 		this.options.containers.forEach(id => {
-			const el = document.getElementById(id)
+			const el = document.documentElement.querySelector(id)
 			el && el.className.split(' ').forEach((classItem) => {
 				// @todo find a way to use this.options.animationSelector instead of transition- which is the default selector
 				// Changing animationSelector option would break everything
@@ -70,7 +70,7 @@ const loadPage = function(data, popstate) {
 
 		// on remet les transitions
 		this.options.containers.forEach(id => {
-			const el = document.getElementById(id)
+			const el = document.documentElement.querySelector(id)
 			el && transitionClasses.forEach(classItem => {
 				el.classList.add(classItem)
 			})
