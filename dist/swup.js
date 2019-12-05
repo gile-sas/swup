@@ -669,35 +669,41 @@ var loadPage = function loadPage(data, popstate) {
 	var animationPromises = [],
 	    xhrPromise = void 0;
 
-	// modif
-	var customAnimateIn = function customAnimateIn() {
-
-		// on supprime la transition avec classe custom
-		_this.options.containers.forEach(function (id) {
-			var el = document.documentElement.querySelector(id);
-			el && el.classList.add('no-transition');
-		});
-		// on supprime les classes
-		document.documentElement.classList.remove('is-leaving');
-		document.documentElement.className.split(' ').forEach(function (classItem) {
-			if (new RegExp('^to-').test(classItem) || classItem === 'is-changing' || classItem === 'is-rendering' || classItem === 'is-popstate') {
-				document.documentElement.classList.remove(classItem);
-			}
-		});
-		document.documentElement.classList.remove('is-animating');
-
-		// on remet les transitions
-		_this.options.containers.forEach(function (id) {
-			var el = document.documentElement.querySelector(id);
-			el && el.classList.remove('no-transition');
-		});
-	};
-
-	// modif max
-	this.on('cancelLoading', function () {
-		console.log('SWUP: customAnimateIn');
-		customAnimateIn();
-	});
+	// // modif
+	// const customAnimateIn = () => {
+	//
+	// 	// on supprime la transition avec classe custom
+	// 	this.options.containers.forEach(id => {
+	// 		const el = document.documentElement.querySelector(id)
+	// 		el && el.classList.add('no-transition')
+	// 	})
+	// 	// on supprime les classes
+	// 	document.documentElement.classList.remove('is-leaving');
+	// 	document.documentElement.className.split(' ').forEach((classItem) => {
+	// 		if (
+	// 			new RegExp('^to-').test(classItem) ||
+	// 			classItem === 'is-changing' ||
+	// 			classItem === 'is-rendering' ||
+	// 			classItem === 'is-popstate'
+	// 		) {
+	// 			document.documentElement.classList.remove(classItem);
+	// 		}
+	// 	});
+	// 	document.documentElement.classList.remove('is-animating');
+	//
+	// 	// on remet les transitions
+	// 	this.options.containers.forEach(id => {
+	// 		const el = document.documentElement.querySelector(id)
+	// 		el && el.classList.remove('no-transition')
+	// 	})
+	//
+	// }
+	//
+	// // modif max
+	// this.on('cancelLoading', () => {
+	// 	console.log('SWUP: customAnimateIn')
+	// 	customAnimateIn()
+	// })
 
 	this.triggerEvent('transitionStart', popstate);
 
@@ -714,13 +720,14 @@ var loadPage = function loadPage(data, popstate) {
 		_this.triggerEvent('animationOutStart');
 
 		// handle classes
-		document.documentElement.classList.add('is-changing');
-		document.documentElement.classList.add('is-leaving');
-		document.documentElement.classList.add('is-animating');
+		// modif on met un remove avant par securite
+		document.documentElement.classList.remove('is-changing').add('is-changing');
+		document.documentElement.classList.remove('is-leaving').add('is-leaving');
+		document.documentElement.classList.remove('is-animating').add('is-animating');
 		if (popstate) {
-			document.documentElement.classList.add('is-popstate');
+			document.documentElement.classList.remove('is-popstate').add('is-popstate');
 		}
-		document.documentElement.classList.add('to-' + (0, _helpers.classify)(data.url));
+		document.documentElement.classList.remove('to-' + (0, _helpers.classify)(data.url)).add('to-' + (0, _helpers.classify)(data.url));
 
 		// animation promise stuff
 		animationPromises = _this.getAnimationPromises('out');
