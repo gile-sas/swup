@@ -792,6 +792,7 @@ var loadPage = function loadPage(data, popstate) {
 			xhrPromise = this.preloadPromise;
 		}
 	}
+
 	// modif max on ajoute ça pour le check externe
 	this.xhrPromise = xhrPromise;
 
@@ -1346,15 +1347,16 @@ var getAnimationPromises = function getAnimationPromises() {
 	animatedElements.forEach(function (element) {
 		var promise = new Promise(function (resolve) {
 
-			// modif max on ajoute ce custom loading
-			_this.on('cancelLoading', function () {
-				resolve(false);
-			});
-
-			element.addEventListener((0, _helpers.transitionEnd)(), function (event) {
+			var listener = function listener(event) {
 				if (element == event.target) {
 					resolve();
 				}
+			};
+			element.addEventListener((0, _helpers.transitionEnd)(), listener);
+			// modif max on ajoute ce custom loading
+			_this.on('cancelLoading', function () {
+				element.removeEventListener((0, _helpers.transitionEnd)(), listener);
+				resolve(false);
 			});
 		});
 		promises.push(promise);

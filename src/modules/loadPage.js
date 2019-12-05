@@ -136,6 +136,7 @@ const loadPage = function(data, popstate) {
 			xhrPromise = this.preloadPromise;
 		}
 	}
+
 	// modif max on ajoute ça pour le check externe
 	this.xhrPromise = xhrPromise
 

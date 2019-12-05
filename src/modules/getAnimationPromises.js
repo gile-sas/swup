@@ -7,16 +7,18 @@ const getAnimationPromises = function() {
 	animatedElements.forEach((element) => {
 		const promise = new Promise((resolve) => {
 
+			const listener = (event) => {
+					if (element == event.target) {
+						resolve();
+					}
+			}
+			element.addEventListener(transitionEnd(), listener)
 			// modif max on ajoute ce custom loading
 			this.on('cancelLoading', () => {
+				element.removeEventListener(transitionEnd(), listener)
 				resolve(false)
 			})
 
-			element.addEventListener(transitionEnd(), (event) => {
-				if (element == event.target) {
-					resolve();
-				}
-			});
 		});
 		promises.push(promise);
 	});
