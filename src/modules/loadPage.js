@@ -5,6 +5,7 @@ const loadPage = function(data, popstate) {
 	let animationPromises = [],
 		xhrPromise;
 	const animateOut = () => {
+		console.log('SWUP: animate out')
 		this.triggerEvent('animationOutStart');
 
 		// handle classes
@@ -109,8 +110,19 @@ const loadPage = function(data, popstate) {
 				console.log('SWUP: will renderPage')
 				this.renderPage(this.cache.getPage(data.url), popstate);
 			} else {
-				animateOut();
 				console.log('SWUP: prevent renderPage')
+				document.documentElement.classList.remove('is-leaving');
+				document.documentElement.className.split(' ').forEach((classItem) => {
+					if (
+						new RegExp('^to-').test(classItem) ||
+						classItem === 'is-changing' ||
+						classItem === 'is-rendering' ||
+						classItem === 'is-popstate'
+					) {
+						document.documentElement.classList.remove(classItem);
+					}
+				});
+				document.documentElement.classList.remove('is-animating');
 			}
 
 			// dans tous les cas

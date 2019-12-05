@@ -669,6 +669,7 @@ var loadPage = function loadPage(data, popstate) {
 	var animationPromises = [],
 	    xhrPromise = void 0;
 	var animateOut = function animateOut() {
+		console.log('SWUP: animate out');
 		_this.triggerEvent('animationOutStart');
 
 		// handle classes
@@ -772,8 +773,14 @@ var loadPage = function loadPage(data, popstate) {
 			console.log('SWUP: will renderPage');
 			_this.renderPage(_this.cache.getPage(data.url), popstate);
 		} else {
-			animateOut();
 			console.log('SWUP: prevent renderPage');
+			document.documentElement.classList.remove('is-leaving');
+			document.documentElement.className.split(' ').forEach(function (classItem) {
+				if (new RegExp('^to-').test(classItem) || classItem === 'is-changing' || classItem === 'is-rendering' || classItem === 'is-popstate') {
+					document.documentElement.classList.remove(classItem);
+				}
+			});
+			document.documentElement.classList.remove('is-animating');
 		}
 
 		// dans tous les cas
@@ -922,6 +929,9 @@ var fetch = function fetch(setOptions) {
 	// modif max on annule la requete
 	setOptions.swupObject && setOptions.swupObject.on('cancelLoading', function () {
 		request.abort();
+		callback = function callback() {
+			console.log('SWUP: request aborted');
+		};
 	});
 
 	request.onreadystatechange = function () {

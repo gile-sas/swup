@@ -16,6 +16,9 @@ const fetch = (setOptions, callback = false) => {
 	// modif max on annule la requete
 	setOptions.swupObject && setOptions.swupObject.on('cancelLoading', () => {
 		request.abort()
+		callback = () => {
+			console.log('SWUP: request aborted');
+		}
 	})
 
 	request.onreadystatechange = function() {
