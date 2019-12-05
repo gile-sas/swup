@@ -13,14 +13,6 @@ const fetch = (setOptions, callback = false) => {
 
 	let request = new XMLHttpRequest();
 
-	// modif max on annule la requete
-	setOptions.swupObject && setOptions.swupObject.on('cancelLoading', () => {
-		request.abort()
-		callback = () => {
-			console.log('SWUP: request aborted');
-		}
-	})
-
 	request.onreadystatechange = function() {
 		if (request.readyState === 4) {
 			if (request.status !== 500) {
@@ -30,6 +22,15 @@ const fetch = (setOptions, callback = false) => {
 			}
 		}
 	};
+
+	// modif max on annule la requete
+	setOptions.swupObject && setOptions.swupObject.on('cancelLoading', () => {
+		request.abort()
+		request.onreadystatechange = function() {
+			console.log('SWUP: request aborted');
+		}
+	})
+
 
 	request.open(options.method, options.url, true);
 	Object.keys(options.headers).forEach((key) => {

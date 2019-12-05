@@ -929,14 +929,6 @@ var fetch = function fetch(setOptions) {
 
 	var request = new XMLHttpRequest();
 
-	// modif max on annule la requete
-	setOptions.swupObject && setOptions.swupObject.on('cancelLoading', function () {
-		request.abort();
-		callback = function callback() {
-			console.log('SWUP: request aborted');
-		};
-	});
-
 	request.onreadystatechange = function () {
 		if (request.readyState === 4) {
 			if (request.status !== 500) {
@@ -946,6 +938,14 @@ var fetch = function fetch(setOptions) {
 			}
 		}
 	};
+
+	// modif max on annule la requete
+	setOptions.swupObject && setOptions.swupObject.on('cancelLoading', function () {
+		request.abort();
+		request.onreadystatechange = function () {
+			console.log('SWUP: request aborted');
+		};
+	});
 
 	request.open(options.method, options.url, true);
 	Object.keys(options.headers).forEach(function (key) {
