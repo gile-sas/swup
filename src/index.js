@@ -191,30 +191,34 @@ export default class Swup {
 				this.triggerEvent('clickLink', event);
 				event.preventDefault();
 				const link = new Link(event.delegateTarget);
-				if (link.getAddress() == getCurrentUrl() || link.getAddress() == '') {
+
+
+				// modif max on permet le click sur même page si le lien n'a pas de hash
+				const isSameUrl = link.getAddress() == getCurrentUrl() || link.getAddress() == '';
+				if (isSameUrl && link.getHash() != '') {
 					// link to the same URL
-					if (link.getHash() != '') {
+					// if (link.getHash() != '') {
 						// link to the same URL with hash
-						this.triggerEvent('samePageWithHash', event);
-						const element = document.querySelector(link.getHash());
-						if (element != null) {
-							history.replaceState(
-								{
-									url: link.getAddress() + link.getHash(),
-									random: Math.random(),
-									source: 'swup'
-								},
-								document.title,
-								link.getAddress() + link.getHash()
-							);
-						} else {
-							// referenced element not found
-							console.warn(`Element for offset not found (${link.getHash()})`);
-						}
+					this.triggerEvent('samePageWithHash', event);
+					const element = document.querySelector(link.getHash());
+					if (element != null) {
+						history.replaceState(
+							{
+								url: link.getAddress() + link.getHash(),
+								random: Math.random(),
+								source: 'swup'
+							},
+							document.title,
+							link.getAddress() + link.getHash()
+						);
 					} else {
-						// link to the same URL without hash
-						this.triggerEvent('samePage', event);
+						// referenced element not found
+						console.warn(`Element for offset not found (${link.getHash()})`);
 					}
+					// } else {
+					// 	// link to the same URL without hash
+					// 	this.triggerEvent('samePage', event);
+					// }
 				} else {
 					// link to different url
 					if (link.getHash() != '') {
