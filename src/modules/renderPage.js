@@ -1,4 +1,4 @@
-import { queryAll } from '../utils';
+// import { queryAll } from '../utils';
 import { transitionEnd, Link } from '../helpers';
 
 const renderPage = function(page, popstate) {
@@ -26,6 +26,7 @@ const renderPage = function(page, popstate) {
 		document.documentElement.classList.add('is-rendering');
 	}
 
+	// todo save current dom
 	this.triggerEvent('willReplaceContent', popstate);
 
 	// replace blocks
@@ -36,21 +37,45 @@ const renderPage = function(page, popstate) {
 	// set title
 	document.title = page.title;
 
-	this.triggerEvent('contentReplaced', popstate);
-	this.triggerEvent('pageView', popstate);
-
-	// empty cache if it's disabled (because pages could be preloaded and stuff)
-	if (!this.options.cache) {
-		this.cache.empty();
+	// here we trick to prevent another click before the setTimeout block below is executed
+	// we will always store the last clicked, e.g. if the user clicks two times the last link will be
+	// loaded
+	let click_event = null
+	this.linkClickHandlerOverride = event => {
+		click_event = event
+		event.preventDefault();
 	}
 
-	// start animation IN
+	// this is delegated to the event loop so the page loads directly,
 	setTimeout(() => {
-		if (!popstate || this.options.animateHistoryBrowsing) {
-			this.triggerEvent('animationInStart');
-			document.documentElement.classList.remove('is-animating');
+		// Prepare and cleanup are custom ones used to load dom only one time in our plugins
+		this.triggerEvent('contentReplacedPrepare');
+		// console.warn('plugins start');
+		// const d = Date.now()
+		this.triggerEvent('contentReplaced', popstate);
+		// console.warn('plugins ended, total time: ', (Date.now() - d) / 1000 + ' seconds');
+		this.triggerEvent('contentReplacedCleanUp');
+		this.triggerEvent('pageView', popstate);
+		// empty cache if it's disabled (because pages could be preloaded and stuff)
+		if (!this.options.cache) {
+			this.cache.empty();
 		}
-	}, 10);
+		// we restore click
+		this.linkClickHandlerOverride = null
+		if (click_event) {
+			this.linkClickHandler.call(this, click_event)
+			click_event = null
+		}
+	}, 0)
+
+
+	// start animation IN
+	// setTimeout(() => {
+	// 	if (!popstate || this.options.animateHistoryBrowsing) {
+	// 		this.triggerEvent('animationInStart');
+	// 		document.documentElement.classList.remove('is-animating');
+	// 	}
+	// }, 10);
 
 	// handle end of animation
 	const animationPromises = this.getAnimationPromises('in');
@@ -76,6 +101,12 @@ const renderPage = function(page, popstate) {
 
 	// reset scroll-to element
 	this.scrollToElement = null;
+
+	// start animation IN, straight away for performance
+	if (!popstate || this.options.animateHistoryBrowsing) {
+		this.triggerEvent('animationInStart');
+		document.documentElement.classList.remove('is-animating');
+	}
 };
 
 export default renderPage;

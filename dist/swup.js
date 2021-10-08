@@ -308,7 +308,10 @@ var Swup = function () {
 			transitionStart: [],
 			transitionEnd: [],
 			willReplaceContent: [],
-			cancelLoading: [] // modif max custom event
+			// modif max custom events
+			cancelLoading: [],
+			contentReplacedPrepare: [],
+			contentReplacedCleanUp: []
 		};
 
 		// variable for id of element to scroll to after render
@@ -323,6 +326,8 @@ var Swup = function () {
 		this.transition = {};
 		// variable for keeping event listeners from "delegate"
 		this.delegatedListeners = {};
+		// added max to temporary override click handler (used in renderPage)
+		this.linkClickHandlerOverride = null;
 
 		// make modules accessible in instance
 		this.cache = new _Cache2.default();
@@ -431,6 +436,10 @@ var Swup = function () {
 			if (!event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
 				// index of pressed button needs to be checked because Firefox triggers click on all mouse buttons
 				if (event.button === 0) {
+					if (null !== this.linkClickHandlerOverride) {
+						this.linkClickHandlerOverride(event);
+						return;
+					}
 					this.triggerEvent('clickLink', event);
 					event.preventDefault();
 					var link = new _helpers.Link(event.delegateTarget);
@@ -1128,9 +1137,8 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; // import { queryAll } from '../utils';
 
-var _utils = __webpack_require__(1);
 
 var _helpers = __webpack_require__(0);
 
@@ -1157,6 +1165,7 @@ var renderPage = function renderPage(page, popstate) {
 		document.documentElement.classList.add('is-rendering');
 	}
 
+	// todo save current dom
 	this.triggerEvent('willReplaceContent', popstate);
 
 	// replace blocks
@@ -1167,21 +1176,44 @@ var renderPage = function renderPage(page, popstate) {
 	// set title
 	document.title = page.title;
 
-	this.triggerEvent('contentReplaced', popstate);
-	this.triggerEvent('pageView', popstate);
+	// here we trick to prevent another click before the setTimeout block below is executed
+	// we will always store the last clicked, e.g. if the user clicks two times the last link will be
+	// loaded
+	var click_event = null;
+	this.linkClickHandlerOverride = function (event) {
+		click_event = event;
+		event.preventDefault();
+	};
 
-	// empty cache if it's disabled (because pages could be preloaded and stuff)
-	if (!this.options.cache) {
-		this.cache.empty();
-	}
+	// this is delegated to the event loop so the page loads directly,
+	setTimeout(function () {
+		// Prepare and cleanup are custom ones used to load dom only one time in our plugins
+		_this.triggerEvent('contentReplacedPrepare');
+		// console.warn('plugins start');
+		// const d = Date.now()
+		_this.triggerEvent('contentReplaced', popstate);
+		// console.warn('plugins ended, total time: ', (Date.now() - d) / 1000 + ' seconds');
+		_this.triggerEvent('contentReplacedCleanUp');
+		_this.triggerEvent('pageView', popstate);
+		// empty cache if it's disabled (because pages could be preloaded and stuff)
+		if (!_this.options.cache) {
+			_this.cache.empty();
+		}
+		// we restore click
+		_this.linkClickHandlerOverride = null;
+		if (click_event) {
+			_this.linkClickHandler.call(_this, click_event);
+			click_event = null;
+		}
+	}, 0);
 
 	// start animation IN
-	setTimeout(function () {
-		if (!popstate || _this.options.animateHistoryBrowsing) {
-			_this.triggerEvent('animationInStart');
-			document.documentElement.classList.remove('is-animating');
-		}
-	}, 10);
+	// setTimeout(() => {
+	// 	if (!popstate || this.options.animateHistoryBrowsing) {
+	// 		this.triggerEvent('animationInStart');
+	// 		document.documentElement.classList.remove('is-animating');
+	// 	}
+	// }, 10);
 
 	// handle end of animation
 	var animationPromises = this.getAnimationPromises('in');
@@ -1202,6 +1234,12 @@ var renderPage = function renderPage(page, popstate) {
 
 	// reset scroll-to element
 	this.scrollToElement = null;
+
+	// start animation IN, straight away for performance
+	if (!popstate || this.options.animateHistoryBrowsing) {
+		this.triggerEvent('animationInStart');
+		document.documentElement.classList.remove('is-animating');
+	}
 };
 
 exports.default = renderPage;

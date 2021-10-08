@@ -64,7 +64,10 @@ export default class Swup {
 			transitionStart: [],
 			transitionEnd: [],
 			willReplaceContent: [],
-			cancelLoading: [] // modif max custom event
+			// modif max custom events
+			cancelLoading: [],
+			contentReplacedPrepare: [],
+			contentReplacedCleanUp: []
 		};
 
 		// variable for id of element to scroll to after render
@@ -79,6 +82,8 @@ export default class Swup {
 		this.transition = {};
 		// variable for keeping event listeners from "delegate"
 		this.delegatedListeners = {};
+		// added max to temporary override click handler (used in renderPage)
+		this.linkClickHandlerOverride = null;
 
 		// make modules accessible in instance
 		this.cache = new Cache();
@@ -188,6 +193,10 @@ export default class Swup {
 		if (!event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
 			// index of pressed button needs to be checked because Firefox triggers click on all mouse buttons
 			if (event.button === 0) {
+				if (null !== this.linkClickHandlerOverride) {
+					this.linkClickHandlerOverride(event);
+					return;
+				}
 				this.triggerEvent('clickLink', event);
 				event.preventDefault();
 				const link = new Link(event.delegateTarget);
